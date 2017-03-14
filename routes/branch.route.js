@@ -1,6 +1,6 @@
 let express = require('express')
 let router = express.Router()
-let branchHandler = require('../modules/branch/branch')
+let branchHandler = require('../models/branch/branch')
 
 
 

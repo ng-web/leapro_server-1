@@ -1,8 +1,8 @@
 let express = require('express')
 let router = express.Router()
-let serviceHandler = require('../modules/service/service')
+let serviceHandler = require('../models/service/service')
 let bodyParser = require('body-parser')
-let serviceValidator = require('../modules/service/service.validator')
+let serviceValidator = require('../models/service/service.validator')
 
 router.use(bodyParser.urlencoded({extended: false}))
 

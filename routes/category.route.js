@@ -1,6 +1,6 @@
 let express = require('express')
 let router = express.Router()
-let categoryHandler = require('../modules/category/category')
+let categoryHandler = require('../models/category/category')
 
 
 

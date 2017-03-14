@@ -1,6 +1,6 @@
 let express = require('express')
 let router = express.Router()
-let companyHandler = require('../modules/company/company')
+let companyHandler = require('../models/company/company')
 let bodyParser = require('body-parser')
 
 router.use(bodyParser.urlencoded({extended: false}))

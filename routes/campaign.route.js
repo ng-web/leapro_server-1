@@ -1,6 +1,6 @@
 let express = require('express')
 let router = express.Router()
-let campaignHandler = require('../modules/campaign/campaign')
+let campaignHandler = require('../models/campaign/campaign')
 
 
 

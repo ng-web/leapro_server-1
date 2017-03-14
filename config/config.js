@@ -3,7 +3,7 @@
  */
 
 let config = {
-    BASE_PATH: 'leapro-api/v1/',
+    'secret': 'mynameisyanik',
 }
 
-exports.modules = config;
+module.exports = config;

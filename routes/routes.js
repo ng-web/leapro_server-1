@@ -11,5 +11,6 @@ router.use(require('./category.route'))
 router.use(require('./campaign.route'))
 router.use(require('./service.route'))
 router.use(require('./product.route'))
+router.use(require('./user.route'))
 
 module.exports = router;
