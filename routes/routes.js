@@ -1,8 +1,39 @@
 let express = require('express')
 let router = express.Router()
 let bodyParser = require('body-parser')
-
+let config = require('../config/config.js')
+let jwt = require('jsonwebtoken')
 router.use(bodyParser.urlencoded({extended: false}))
+
+// route middleware to verify a token
+router.use(function(req, res, next) {
+   var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+  // decode token
+  if (token) {
+
+    // verifies secret and checks exp
+    jwt.verify(token, config.secret, function(err, decoded) {      
+      if (err) {
+        return res.json({ code: 401, status:'fail', message: 'Failed to authenticate token.', data:'' });    
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;    
+        next();
+      }
+    });
+
+  } else {
+
+    return res.json({ 
+        code: 403, 
+        status: 'error',
+        message: 'No token provided.',
+        data:''
+    });
+    
+  }
+});
 
 router.use(require('./branch.route'))
 router.use(require('./client.route'))
@@ -14,3 +45,5 @@ router.use(require('./product.route'))
 router.use(require('./user.route'))
 
 module.exports = router;
+
+
