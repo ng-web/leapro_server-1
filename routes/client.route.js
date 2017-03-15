@@ -41,26 +41,39 @@ router.get("/clients/:id", function(req, res){
 })
 
 router.get("/clients/:id/companies/", function(req, res){
-     clientHandler.company.findAll(req.params, function(result){
+     clientHandler.commercial.company.findAll(req.params, function(result){
         res.json(result)
     })
 })
 
 router.get("/clients/:id/companies/branches", function(req, res){
-     clientHandler.company.branch.findAll(req.params, function(result){
+     clientHandler.commercial.company.branch.findAll(req.params, function(result){
         res.json(result)
     })
 })
 
 router.get("/clients/:id/companies/branches/areas", function(req, res){
-     clientHandler.company.branch.area.findAll(req.params, function(result){
+     clientHandler.commercial.company.branch.area.findAll(req.params, function(result){
         res.json(result)
     })
 })
 
+//TODO: Change route name to suit commercial customer
+router.post("/branches/:id/areas", function(req, res){
+    clientHandler.commercial.company.branch.area.exist(req.body, function(response){
+        if(response.data.length == 0){
+           clientHandler.company.branch.area.insert(req.body, function(result){
+                res.json(result)
+            })
+        }else{
+            res.json({code: 409, status: 'error', message: 'duplicate entry', data: 'Conflict'})
+        }
+    }) 
+})
+
 router.post("/ex-clients", function(req, res){  
     if(req.body.customer_type == "C"){
-        clientHandler.insertCommercial(req.body, function(result){
+        clientHandler.commercial.insertCommercial(req.body, function(result){
             res.json(result)
         })
     }else{

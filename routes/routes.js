@@ -4,7 +4,7 @@ let bodyParser = require('body-parser')
 let config = require('../config/config.js')
 let jwt = require('jsonwebtoken')
 router.use(bodyParser.urlencoded({extended: false}))
-
+/*
 // route middleware to verify a token
 router.use(function(req, res, next) {
    var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -34,7 +34,7 @@ router.use(function(req, res, next) {
     
   }
 });
-
+*/
 router.use(require('./branch.route'))
 router.use(require('./client.route'))
 router.use(require('./company.route'))

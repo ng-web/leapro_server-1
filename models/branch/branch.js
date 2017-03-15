@@ -2,7 +2,7 @@ let pool = require('../../config/db.js')
 let Pagination = require('../pagination.js')
 
 
-let company = {
+let branch = {
     insert: function(value, fn){
         pool.getConnection(function(err, connection) {
              connection.query('INSERT INTO branches SET name = ?, type = ?, fk_company_id = ?', 
@@ -89,7 +89,11 @@ let company = {
             });
         });
   },
+
+  area: {
+      
+  }
 }
 
 
-module.exports = company;
+module.exports = branch;
