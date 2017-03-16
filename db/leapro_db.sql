@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 13, 2017 at 05:50 AM
+-- Generation Time: Mar 16, 2017 at 07:00 PM
 -- Server version: 10.1.16-MariaDB
 -- PHP Version: 7.0.9
 
@@ -168,7 +168,8 @@ CREATE TABLE `companies` (
 --
 
 INSERT INTO `companies` (`id`, `name`, `logo_path`, `established_date`, `fk_customer_id`) VALUES
-(1, 'Bashco', NULL, '0000-00-00', 3);
+(1, 'Bashco', NULL, '0000-00-00', 3),
+(2, 'Lasco', NULL, NULL, 3);
 
 -- --------------------------------------------------------
 
@@ -296,7 +297,7 @@ CREATE TABLE `jobs` (
   `type` enum('Job Order','Estimate') NOT NULL,
   `fk_job_status_id` int(11) NOT NULL,
   `received_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `expiry_date` int(11) NOT NULL,
+  `expiry_date` date NOT NULL,
   `summary` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -500,6 +501,68 @@ CREATE TABLE `units` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `username` varchar(20) NOT NULL,
+  `profile_img` text,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fk_user_type_id` int(11) NOT NULL,
+  `fk_credential_id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `status` enum('Active','Inactive') NOT NULL DEFAULT 'Active'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`username`, `profile_img`, `date_created`, `fk_user_type_id`, `fk_credential_id`, `id`, `status`) VALUES
+('Yanik', NULL, '2017-03-14 14:36:23', 1, 3, 1, 'Active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_credentials`
+--
+
+CREATE TABLE `user_credentials` (
+  `id` int(11) NOT NULL,
+  `password` text NOT NULL,
+  `salt` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `user_credentials`
+--
+
+INSERT INTO `user_credentials` (`id`, `password`, `salt`) VALUES
+(3, '85227b79c9ddc06b60a75e0188131dcaced166c23501cec3861425cf893b16b8149d24a5f0cbbcf967e6d392fb846ca0da2263b4b0cbe870dd5e151018348ec6', 'bc70e013b1e86fbb');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_types`
+--
+
+CREATE TABLE `user_types` (
+  `id` int(11) NOT NULL,
+  `type` varchar(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `user_types`
+--
+
+INSERT INTO `user_types` (`id`, `type`) VALUES
+(1, 'Admin'),
+(2, 'Standard'),
+(3, 'Technician');
+
+-- --------------------------------------------------------
+
+--
 -- Stand-in structure for view `v_active_customers`
 --
 CREATE TABLE `v_active_customers` (
@@ -564,6 +627,24 @@ CREATE TABLE `v_services` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `v_users`
+--
+CREATE TABLE `v_users` (
+`username` varchar(20)
+,`profile_img` text
+,`date_created` timestamp
+,`fk_user_type_id` int(11)
+,`fk_credential_id` int(11)
+,`id` int(11)
+,`status` enum('Active','Inactive')
+,`type` varchar(11)
+,`password` text
+,`salt` text
+);
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `v_active_customers`
 --
 DROP TABLE IF EXISTS `v_active_customers`;
@@ -587,6 +668,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `v_services`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_services`  AS  select `services`.`id` AS `id`,`services`.`name` AS `name`,`services`.`description` AS `description`,`services`.`man_hours` AS `man_hours`,`services`.`unit_charge` AS `unit_charge`,`services`.`discount_type` AS `discount_type`,`services`.`tax_type` AS `tax_type`,`services`.`tax` AS `tax`,`services`.`discount` AS `discount`,`services`.`fk_category_id` AS `fk_category_id`,`categories`.`name` AS `category` from (`services` join `categories` on((`categories`.`id` = `services`.`fk_category_id`))) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_users`
+--
+DROP TABLE IF EXISTS `v_users`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_users`  AS  select `users`.`username` AS `username`,`users`.`profile_img` AS `profile_img`,`users`.`date_created` AS `date_created`,`users`.`fk_user_type_id` AS `fk_user_type_id`,`users`.`fk_credential_id` AS `fk_credential_id`,`users`.`id` AS `id`,`users`.`status` AS `status`,`user_types`.`type` AS `type`,`user_credentials`.`password` AS `password`,`user_credentials`.`salt` AS `salt` from ((`users` join `user_credentials` on((`user_credentials`.`id` = `users`.`fk_credential_id`))) join `user_types` on((`users`.`fk_user_type_id` = `user_types`.`id`))) ;
 
 --
 -- Indexes for dumped tables
@@ -799,6 +889,27 @@ ALTER TABLE `units`
   ADD UNIQUE KEY `name` (`name`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `fk_credential_id` (`fk_credential_id`),
+  ADD KEY `fk_user_type_id` (`fk_user_type_id`);
+
+--
+-- Indexes for table `user_credentials`
+--
+ALTER TABLE `user_credentials`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `user_types`
+--
+ALTER TABLE `user_types`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -841,7 +952,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `companies`
 --
 ALTER TABLE `companies`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `contact_persons`
 --
@@ -937,6 +1048,21 @@ ALTER TABLE `services`
 --
 ALTER TABLE `units`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `user_credentials`
+--
+ALTER TABLE `user_credentials`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+--
+-- AUTO_INCREMENT for table `user_types`
+--
+ALTER TABLE `user_types`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
 -- Constraints for dumped tables
 --
@@ -1052,6 +1178,13 @@ ALTER TABLE `product_area_usage`
 --
 ALTER TABLE `services`
   ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`fk_category_id`) REFERENCES `categories` (`id`);
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`fk_credential_id`) REFERENCES `user_credentials` (`id`),
+  ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`fk_user_type_id`) REFERENCES `user_types` (`id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

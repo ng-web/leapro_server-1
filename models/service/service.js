@@ -6,7 +6,10 @@ let service = {
     insert: function(value, fn){
         pool.getConnection(function(err, connection) {
             connection.beginTransaction(function(err) {
-                if (err) { throw err; }
+                 if (err) { 
+                    console.log(err)
+                    return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
+                }
                 connection.query('INSERT INTO services SET  name = ?, description = ?, man_hours = ?, unit_charge = ?, discount_type = ?, tax_type=?, tax= ?, discount = ?, fk_category_id = ?', 
                 [value.name, value.description, value.man_hours, value.unit_charge, value.discount_type, value.tax_type, value.tax, value.discount, value.category_id], function (error, results, fields) {
                     if (error) {
@@ -34,7 +37,10 @@ let service = {
        let id = req.params.id
         pool.getConnection(function(err, connection) {
             connection.beginTransaction(function(err) {
-                if (err) { throw err; }
+                 if (err) { 
+                    console.log(err)
+                    return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
+                }
                 connection.query('UPDATE services SET  name = ?, description = ?, man_hours = ?, unit_charge = ?, discount_type = ?, tax_type=?, tax= ?, discount = ?, fk_category_id = ? WHERE id = ?', 
                 [value.name, value.description, value.man_hours, value.unit_charge, value.discount_type, value.tax_type, value.tax, value.discount, value.category_id, id], function (error, results, fields) {
                     if (error) {
@@ -60,6 +66,10 @@ let service = {
    },  
    findOne : function(req, fn){        
         pool.getConnection(function(err, connection) {
+             if (err) { 
+                console.log(err)
+                return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
+             }
             connection.query('SELECT * FROM v_services where id = ?',req.id, function (error, results, fields) {
                 connection.release();
 
@@ -75,6 +85,10 @@ let service = {
    },
    findAll : function(req, fn){        
         pool.getConnection(function(err, connection) {
+             if (err) { 
+                console.log(err)
+                return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
+             }
             let values = Pagination(req);
             connection.query('SELECT * FROM v_services LIMIT ?,?', values, function (error, results, fields) {
                 connection.release();
@@ -91,7 +105,10 @@ let service = {
    },
    search : function(q, fn){
        pool.getConnection(function(err, connection) {
-            // Use the connection
+             if (err) { 
+                console.log(err)
+                return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
+             }
             connection.query('SELECT * FROM v_services where name LIKE ? and fk_category_id LIKE ?',
             [q.name+'%' , q.category_id+'%'], function (error, results, fields) {
                 
@@ -105,13 +122,14 @@ let service = {
   },
   exist : function(q, fn){
        pool.getConnection(function(err, connection) {
-            // Use the connection
+             if (err) { 
+                console.log(err)
+                return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
+             }
             connection.query('SELECT * FROM v_services where name = ?',
             [q.name], function (error, results, fields) {
-                // And done with the connection.
+               
                 connection.release();
-
-                // Handle error after the release.
                 if (error) return fn({code: 500, status: 'error', message: 'internal server error', data: 'SQLException'})
                   
                 fn({code: 200, status: 'success', message:'', data: results })

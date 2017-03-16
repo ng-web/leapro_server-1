@@ -3,7 +3,7 @@ let bodyParser = require('body-parser')
 let cors = require('cors')
 let app = express()
 
-app.use(require('./routes/routes'))
+app.use('/crm/api/v1/', require('./routes/routes'))
 
 app.use(cors())
 app.use(bodyParser.json())
