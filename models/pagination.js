@@ -1,6 +1,6 @@
 
 pager = function pagination(req){
-    let pageSize= 10, page = 0, skip;
+    let pageSize= 10, page = 0, skip = 0;
     if(req.hasOwnProperty("query")){
        if(req.hasOwnProperty("pageSize")){
             if(req.query.pageSize){
@@ -14,7 +14,6 @@ pager = function pagination(req){
        }
     }
     skip = pageSize * page;
-
     return [skip, pageSize]
 }
 

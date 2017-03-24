@@ -103,7 +103,7 @@ let user = {
                 console.log(err)
                 return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
             }
-            connection.query('SELECT * FROM v_users where username = ? and status="Active"', [req.username], function (error, results, fields) {
+            connection.query('SELECT * FROM v_users where username = ? and status="Active" limit 1', [req.username], function (error, results, fields) {
                 connection.release();
 
                 if (error) {

@@ -5,12 +5,13 @@ let Pagination = require('../pagination.js')
 let product = {
     insert: function(value, fn){
        pool.getConnection(function(err, connection) {
+           console.log(value)
             if (err) { 
                 console.log(err)
                 return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
              }
-            connection.query('INSERT INTO products SET  name = ?, description = ?, unit_cost = ?, unit_charge = ?, selling_price = ?, discount_type = ?, tax_type=?, tax= ?, quantity = ?, dilution= ?, application = ?, usage_type=?, discount = ?, fk_unit_id =?, fk_category_id = ?', 
-            [value.name, value.description, value.unit_cost, value.unit_charge,  value.selling_price, value.discount_type, value.tax_type, value.tax, value.quantity, value.dilution, value.application, value.usage_type, value.discount, value.unit_id, value.category_id], function (error, results, fields) {
+            connection.query('INSERT INTO products SET  name = ?, description = ?, unit_cost = ?, selling_cost = ?, discount_type = ?, tax_type=?, tax= ?, quantity = ?, dilution= ?, application = ?, usage_unit=?, discount = ?, fk_unit_id =?, fk_category_id = ?', 
+            [value.name, value.description, value.unit_cost,  value.selling_cost, value.discount_type, value.tax_type, value.tax, value.quantity, value.dilution, value.application, value.usage_unit, value.discount, value.unit_id, value.category_id], function (error, results, fields) {
                 if (error) {                    
                     console.log(error)
                     return fn({code: 500, status: 'error', message: 'internal server error', data: 'SQLException'})
@@ -28,8 +29,8 @@ let product = {
                 console.log(err)
                 return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' })
              }
-            connection.query('UPDATE INTO products SET  name = ?, description = ?, unit_cost = ?, unit_charge = ?, selling_price = ?, discount_type = ?, tax_type=?, tax= ?, quantity = ?, dilution= ?, application = ?, usage_type=?, discount = ?, fk_unit_id =?, fk_category_id = ? WHERE id = ?', 
-            [value.name, value.description, value.unit_cost, value.unit_charge,  value.selling_price, value.discount_type, value.tax_type, value.tax, value.quantity, value.dilution, value.application, value.usage_type, value.discount, value.unit_id, value.category_id, id], function (error, results, fields) {
+            connection.query('UPDATE INTO products SET  name = ?, description = ?, unit_cost = ?, unit_cost = ?, selling_cost = ?, discount_type = ?, tax_type=?, tax= ?, quantity = ?, dilution= ?, application = ?, usage_unit=?, discount = ?, fk_unit_id =?, fk_category_id = ? WHERE id = ?', 
+            [value.name, value.description, value.unit_cost, value.unit_cost,  value.selling_cost, value.discount_type, value.tax_type, value.tax, value.quantity, value.dilution, value.application, value.usage_unit, value.discount, value.unit_id, value.category_id, id], function (error, results, fields) {
                 if (error) {                    
                     console.log(error)
                     return fn({code: 500, status: 'error', message: 'internal server error', data: 'SQLException'})

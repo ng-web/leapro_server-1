@@ -97,6 +97,9 @@ job = {
         });
 
     },
+    update: function () {
+
+    },
     client: {
         //query all client data and jobs
 
@@ -106,19 +109,48 @@ job = {
 
     },
     findAll: function (req, fn) {
+        pool.getConnection(function (err, connection) {
+            if (err) { return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' }) }
+            let values = Pagination(req);
+            let nestingOptions = [
+                { tableName: 'jobs', pkey: 'id' },
+                { tableName: 'jobs_status', pkey: 'id' },
+                { tableName: 'job_areas', pkey: 'id', fkeys: [{ table: 'jobs', col: 'fk_job_id' }, { table: 'areas', col: 'fk_area_id' }] },
+                { tableName: 'product_area_usage', pkey: 'id', fkeys: [{ table: 'job_areas', col: 'fk_job_area_id' }, { table: 'products', col: 'fk_product_id' }] },
+                { tableName: 'products', pkey: 'id' },
+                { tableName: 'areas', pkey: 'id' },
+            ]
+            let options = { sql: `SELECT * FROM jobs INNER JOIN job_status ON job_status.id = jobs.fk_job_status_id LIMIT ?,?`, nestTables: true };
+            connection.query(options, [values[0], values[1]], function (error, results, fields) {
+                connection.release();
+
+                if (error) {
+                    console.log(error)
+                    return fn({ code: 500, status: 'error', message: 'internal server error', data: 'SQLException' })
+                }
+                var nestedRows = func.convertToNested(results, nestingOptions);
+                fn({ code: 200, status: 'success', message: '', data: nestedRows })
+
+            });
+        });
+    },
+    service: {
+        findAll: function (req, fn) {
             pool.getConnection(function (err, connection) {
-                 if (err) { return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' }) }
+                if (err) { return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' }) }
                 let values = Pagination(req);
                 let nestingOptions = [
                     { tableName: 'jobs', pkey: 'id' },
                     { tableName: 'jobs_status', pkey: 'id' },
-                    { tableName: 'job_areas', pkey: 'id', fkeys: [{ table: 'jobs', col: 'fk_job_id' }, { table: 'areas', col: 'fk_area_id' }] },
-                    { tableName: 'product_area_usage', pkey: 'id', fkeys: [{ table: 'job_areas', col: 'fk_job_area_id' }, { table: 'products', col: 'fk_product_id' }] },
-                    { tableName: 'products', pkey: 'id' },
-                    { tableName: 'areas', pkey: 'id' },
+                    { tableName: 'job_services', pkey: 'id', fkeys: [{ table: 'jobs', col: 'fk_job_id' }, { table: 'services', col: 'fk_services_id' }] },
+                    { tableName: 'services', pkey: 'id' }
                 ]
-                let options = { sql: `SELECT * FROM jobs INNER JOIN job_status ON job_status.id = jobs.fk_job_status_id LIMIT ?,?`, nestTables: true };
-                connection.query(options, [req.id, values[0], values[1]], function (error, results, fields) {
+                let options = {
+                    sql: `SELECT * FROM jobs INNER JOIN job_status ON job_status.id = jobs.fk_job_status_id
+                                                LEFT JOIN job_services ON job_services.fk_job_id = jobs.id INNER JOIN services ON services.id =
+                                                job_services.fk_service_id WHERE jobs.id= ? LIMIT ?,?`, nestTables: true
+                };
+                connection.query(options, req.id, [values[0], values[1]], function (error, results, fields) {
                     connection.release();
 
                     if (error) {
@@ -130,69 +162,44 @@ job = {
 
                 });
             });
-     },
-    service: {
-            findAll: function (req, fn) {
-                    pool.getConnection(function (err, connection) {
-                        if (err) { return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' }) }
-                        let values = Pagination(req);
-                        let nestingOptions = [
-                            { tableName: 'jobs', pkey: 'id' },
-                            { tableName: 'jobs_status', pkey: 'id' },
-                            { tableName: 'job_services', pkey: 'id', fkeys: [{ table: 'jobs', col: 'fk_job_id' }, { table: 'services', col: 'fk_services_id' }] },
-                            { tableName: 'services', pkey: 'id' }
-                        ]
-                        let options = { sql: `SELECT * FROM jobs INNER JOIN job_status ON job_status.id = jobs.fk_job_status_id
-                                                LEFT JOIN job_services ON job_services.fk_job_id = jobs.id INNER JOIN services ON services.id 
-                                                job_services.fk_service_id LIMIT ?,?`, nestTables: true };
-                        connection.query(options, [values[0], values[1]], function (error, results, fields) {
-                            connection.release();
-
-                            if (error) {
-                                console.log(error)
-                                return fn({ code: 500, status: 'error', message: 'internal server error', data: 'SQLException' })
-                            }
-                            var nestedRows = func.convertToNested(results, nestingOptions);
-                            fn({ code: 200, status: 'success', message: '', data: nestedRows })
-
-                        });
-                    });
-            }
+        }
     },
     area: {
-        product:{
+        product: {
             findAll: function (req, fn) {
-                    pool.getConnection(function (err, connection) {
-                        if (err) { return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' }) }
-                        let values = Pagination(req);
-                        let nestingOptions = [
-                            { tableName: 'jobs', pkey: 'id' },
-                            { tableName: 'jobs_status', pkey: 'id' },
-                            { tableName: 'job_areas', pkey: 'id', fkeys: [{ table: 'jobs', col: 'fk_job_id' }, { table: 'areas', col: 'fk_area_id' }] },
-                            { tableName: 'product_area_usage', pkey: 'id', fkeys: [{ table: 'job_areas', col: 'fk_job_area_id' }, { table: 'products', col: 'fk_product_id' }] },
-                            { tableName: 'products', pkey: 'id' },
-                            { tableName: 'areas', pkey: 'id' },
-                        ]
-                        let options = { sql: `SELECT * FROM jobs INNER JOIN job_status ON job_status.id = jobs.fk_job_status_id
+                pool.getConnection(function (err, connection) {
+                    if (err) { return fn({ code: 500, status: 'error', message: 'internal server error', data: 'Unable to connect to mysql' }) }
+                    let values = Pagination(req);
+                    let nestingOptions = [
+                        { tableName: 'jobs', pkey: 'id' },
+                        { tableName: 'jobs_status', pkey: 'id' },
+                        { tableName: 'job_areas', pkey: 'id', fkeys: [{ table: 'jobs', col: 'fk_job_id' }, { table: 'areas', col: 'fk_area_id' }] },
+                        { tableName: 'product_area_usage', pkey: 'id', fkeys: [{ table: 'job_areas', col: 'fk_job_area_id' }, { table: 'products', col: 'fk_product_id' }] },
+                        { tableName: 'products', pkey: 'id' },
+                        { tableName: 'areas', pkey: 'id' },
+                    ]
+                    let options = {
+                        sql: `SELECT * FROM jobs INNER JOIN job_status ON job_status.id = jobs.fk_job_status_id
                                                 LEFT JOIN job_areas ON job_areas.fk_job_id = jobs.id LEFT JOIN product_area_usage
                                                 ON job_areas.id =product_area_usage.fk_job_area_id INNER JOIN products on products.id = product_area_usage.fk_product_id
-                                                LEFT JOIN areas ON areas.id = job_areas.fk_area_id LIMIT ?,?`, nestTables: true };
-                        connection.query(options, [values[0], values[1]], function (error, results, fields) {
-                            connection.release();
+                                                LEFT JOIN areas ON areas.id = job_areas.fk_area_id WHERE jobs.id= ? LIMIT ?,?`, nestTables: true
+                    };
+                    connection.query(options, req.id, [values[0], values[1]], function (error, results, fields) {
+                        connection.release();
 
-                            if (error) {
-                                console.log(error)
-                                return fn({ code: 500, status: 'error', message: 'internal server error', data: 'SQLException' })
-                            }
-                            var nestedRows = func.convertToNested(results, nestingOptions);
-                            fn({ code: 200, status: 'success', message: '', data: nestedRows })
+                        if (error) {
+                            console.log(error)
+                            return fn({ code: 500, status: 'error', message: 'internal server error', data: 'SQLException' })
+                        }
+                        var nestedRows = func.convertToNested(results, nestingOptions);
+                        fn({ code: 200, status: 'success', message: '', data: nestedRows })
 
-                        });
                     });
+                });
             }
         }
     },
-    
+
 }
 
 module.exports = job;

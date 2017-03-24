@@ -53,6 +53,13 @@ router.post("/clients/create", function (req, res) {
     }
 })
 
+//TODO: test route
+router.get("/client/:id/jobs/", function (req, res) {
+    jobHandler.customer.findOne(req.params, function (result) {
+        res.json(result)
+    })
+})
+
 //RESIDENTIAL CLIENT SPECIFIC ROUTES
 router.get("/residential/clients/:id/areas", function(req, res){
     clientHandler.residential.area.findAll(req, function(result){

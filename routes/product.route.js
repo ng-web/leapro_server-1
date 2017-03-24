@@ -2,10 +2,9 @@ let express = require('express')
 let router = express.Router()
 let productHandler = require('../models/product/product')
 
-let bodyParser = require('body-parser')
+
 let serviceValidator = require('../models/service/service.validator')
 
-router.use(bodyParser.urlencoded({extended: false}))
 
 router.get("/products", function(req, res){
     productHandler.findAll(req, function(result){
@@ -15,6 +14,7 @@ router.get("/products", function(req, res){
 
 router.post("/products", function(req, res){
     productHandler.exist(req.body, function(response){
+        console.log(req);
         if(response.data.length == 0){
             productHandler.insert(req.body, function(result){
                 res.json(result)
