@@ -1,4 +1,4 @@
-var validator = require('validator');
+var validator = require('validator'); 
 
 exports.checkRequest = function validate(req, res, next) {
   let errors = []
